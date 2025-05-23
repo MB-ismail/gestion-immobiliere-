@@ -1,0 +1,42 @@
+{% extends 'biens/base.html' %}
+
+{% block title %}Mes demandes de bail{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Mes demandes de bail</h2>
+
+    {% if demandes %}
+        <table class="table table-striped mt-3">
+            <thead>
+                <tr>
+                    <th>Bien</th>
+                    <th>Date de la demande</th>
+                    <th>Message</th>
+                    <th>Statut</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for demande in demandes %}
+                <tr>
+                    <td>{{ demande.bien.titre }}</td>
+                    <td>{{ demande.date_demande|date:"d/m/Y à H:i" }}</td>
+                    <td>{{ demande.message|default:"—" }}</td>
+                    <td>
+                        {% if demande.statut == 'en attente' %}
+                            <span class="badge bg-warning text-dark">En attente</span>
+                        {% elif demande.statut == 'accepte' %}
+                            <span class="badge bg-success">Acceptée</span>
+                        {% elif demande.statut == 'refuse' %}
+                            <span class="badge bg-danger">Refusée</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Vous n'avez encore fait aucune demande de bail.</p>
+    {% endif %}
+</div>
+{% endblock %}

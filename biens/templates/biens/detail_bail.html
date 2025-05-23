@@ -1,0 +1,37 @@
+{% extends 'biens/base.html' %}
+{% block title %}Détail du bail{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Contrat de bail</h2>
+    <p><strong>Bien :</strong> {{ bail.bien.titre }}</p>
+    <p><strong>Locataire :</strong> {{ bail.locataire.username }}</p>
+    <p><strong>Adresse locataire :</strong> {{ bail.adresse_locataire }}</p>
+    <p><strong>Adresse propriétaire :</strong> {{ bail.adresse_proprietaire }}</p>
+    <p><strong>Montant du loyer :</strong> {{ bail.montant_loyer }} MAD</p>
+    <p><strong>Garantie :</strong> {{ bail.garantie }} MAD</p>
+    <p><strong>Durée :</strong> Du {{ bail.date_debut }} au {{ bail.date_fin }}</p>
+
+    <hr>
+    <p><strong>Validé par le propriétaire :</strong> {{ bail.est_valide_proprio|yesno:"✅ Oui,❌ Non" }}</p>
+    <p><strong>Validé par le locataire :</strong> {{ bail.est_valide_locataire|yesno:"✅ Oui,❌ Non" }}</p>
+
+    <form method="post">
+        {% csrf_token %}
+        {% if request.user == bail.bien.proprietaire and not bail.est_valide_proprio %}
+            <form method="POST" action="{% url 'valider_bail_proprio' bail.id %}">
+        {% csrf_token %}
+        <button class="btn btn-success">Valider le contrat</button>
+    </form>
+{% endif %}
+        {% if request.user == bail.locataire and not bail.est_valide_locataire %}
+            <button type="submit" name="valider_locataire" class="btn btn-primary">Valider en tant que Locataire</button>
+        {% endif %}
+    </form>
+
+    {% if bail.est_entierement_valide %}
+        <hr>
+        <a href="{% url 'contrat_pdf' pk=bail.pk %}" class="btn btn-outline-dark">📄 Télécharger le contrat PDF</a>
+    {% endif %}
+</div>
+{% endblock %}

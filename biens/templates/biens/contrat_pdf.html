@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Contrat de Bail</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            font-size: 13px;
+            line-height: 1.8;
+            margin: 40px;
+            color: #333;
+        }
+        h1, h3 {
+            text-align: center;
+            color: #1b4f72;
+        }
+        p {
+            margin-bottom: 10px;
+        }
+        .section-title {
+            margin-top: 30px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            font-size: 15px;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+        }
+        .signatures {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .signature-box {
+            width: 45%;
+            text-align: center;
+        }
+        .signature-box p {
+            margin-top: 50px;
+            font-style: italic;
+        }
+        .approval {
+            margin-top: 40px;
+            text-align: center;
+            font-weight: bold;
+            color: green;
+        }
+        .warning {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Contrat de bail</h1>
+
+<p><strong>Entre les soussignés :</strong></p>
+
+<p>
+    M. ou Mme <strong>{{ bail.bien.proprietaire.get_full_name }}</strong>,
+    propriétaire du bien sis <strong>{{ bail.bien.adresse }}</strong><br>
+    <em>ci-après dénommé(e) "Le Bailleur"</em>
+</p>
+
+<p>
+    et
+</p>
+
+<p>
+    M. ou Mme <strong>{{ bail.locataire.get_full_name }}</strong>,
+    demeurant à <strong>{{ bail.adresse_locataire|default:"..." }}</strong><br>
+    <em>ci-après dénommé(e) "Le Locataire"</em>
+</p>
+
+<div class="section-title">1. Objet du bail</div>
+<p>
+Le Bailleur donne en location le bien suivant :<br>
+<b>{{ bail.bien.description }}</b><br>
+Adresse : {{ bail.bien.adresse }}
+</p>
+
+<div class="section-title">2. Durée du contrat</div>
+<p>
+Contrat d’une durée de <b>3 ans</b>, prenant effet le <strong>{{ bail.date_debut }}</strong>.<br>
+Tacite reconduction par période de 3 ans sauf résiliation notifiée 3 mois à l’avance.
+</p>
+
+<div class="section-title">3. Résiliation</div>
+<p>
+Résiliation possible :
+<ul>
+  <li>Par le Locataire : à tout moment avec 3 mois de préavis</li>
+  <li>Par le Bailleur : en fin de contrat pour motif légitime</li>
+</ul>
+</p>
+
+<div class="section-title">4. Destination</div>
+<p>
+Usage exclusif d’habitation. Toute activité professionnelle nécessite accord écrit du Bailleur.
+</p>
+
+<div class="section-title">5. Loyer</div>
+<p>
+Loyer mensuel : <strong>{{ bail.montant_loyer }} dirhams</strong><br>
+En lettres : <strong>{{ montant_lettres }} dirhams</strong><br>
+Provisions sur charges : 0.00 dirhams<br>
+Total mensuel : <strong>{{ bail.montant_loyer }} dirhams</strong><br>
+Paiement au plus tard le 5 de chaque mois.
+</p>
+
+<div class="section-title">6. Dépôt de garantie</div>
+<p>
+Versement de <strong>{{ bail.garantie }} dirhams</strong> (en lettres : <strong>{{ garantie_lettres }}</strong>) à titre de garantie.
+</p>
+
+<div class="section-title">7. Obligations du Bailleur</div>
+<ul>
+    <li>Livrer le logement en bon état</li>
+    <li>Garantir la jouissance paisible</li>
+    <li>Entretenir les lieux</li>
+</ul>
+
+<div class="section-title">8. Obligations du Locataire</div>
+<ul>
+    <li>Payer le loyer</li>
+    <li>Utiliser les lieux paisiblement</li>
+    <li>Réparer les dommages sauf cas de force majeure</li>
+    <li>Ne pas sous-louer ou céder sans autorisation</li>
+</ul>
+
+<div class="section-title">9. Election de domicile</div>
+<p>
+Le Bailleur en son domicile et le Locataire dans les lieux loués.
+</p>
+
+<p>
+Fait à <strong>{{ lieu_signature|default:"…" }}</strong>, le <strong>{{ bail.date_creation|date:"d/m/Y" }}</strong><br>
+En deux exemplaires.
+</p>
+
+<div class="signatures">
+    <div class="signature-box">
+        <p><strong>Bailleur</strong></p>
+        {% if bail.est_valide_proprio %}
+            <p style="font-family: cursive;">{{ bail.bien.proprietaire.get_full_name }}</p>
+            <p>✔ Signature électronique</p>
+        {% else %}
+            <p class="warning">En attente de validation</p>
+        {% endif %}
+    </div>
+
+    <div class="signature-box">
+        <p><strong>Locataire</strong></p>
+        {% if bail.est_valide_locataire %}
+            <p style="font-family: cursive;">{{ bail.locataire.get_full_name }}</p>
+            <p>✔ Signature électronique</p>
+        {% else %}
+            <p class="warning">En attente de validation</p>
+        {% endif %}
+    </div>
+</div>
+
+{% if valide %}
+    <div class="approval">
+        ✅ Contrat **lu et approuvé** par les deux parties.
+    </div>
+{% else %}
+    <div class="approval warning">
+        ⚠️ Contrat non encore validé par les deux parties.
+    </div>
+{% endif %}
+
+</body>
+</html>

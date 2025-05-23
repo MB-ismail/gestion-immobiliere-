@@ -1,0 +1,28 @@
+{% extends 'biens/base.html' %}
+{% load form_tags %}
+{% block title %}Connexion{% endblock %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+    <div class="card shadow p-4" style="width: 100%; max-width: 500px;">
+        <h2 class="text-center mb-4">Connexion</h2>
+
+        <form method="POST" novalidate>
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="id_username" class="form-label">Nom d'utilisateur</label>
+                {{ form.username|add_class:"form-control" }}
+            </div>
+            <div class="mb-3">
+                <label for="id_password" class="form-label">Mot de passe</label>
+                {{ form.password|add_class:"form-control" }}
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Se connecter</button>
+        </form>
+
+        <div class="text-center mt-3">
+            <a href="{% url 'signup' %}">Pas encore inscrit ? Créez un compte</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

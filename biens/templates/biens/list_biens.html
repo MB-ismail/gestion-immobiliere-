@@ -1,0 +1,39 @@
+{% extends 'biens/base.html' %}
+
+{% block title %}Liste des biens{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-3">Biens immobiliers</h2>
+    <a href="{% url 'ajouter_bien' %}" class="btn btn-success mb-3">Ajouter un bien</a>
+
+    {% if biens %}
+    <table class="table table-bordered">
+        <thead class="table-light">
+            <tr>
+                <th>Titre</th>
+                <th>Statut</th>
+                <th>Type</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for bien in biens %}
+            <tr>
+                <td>{{ bien.titre }}</td>
+                <td>{{ bien.get_statut_display }}</td>
+                <td>{{ bien.type }}</td>
+                <td>
+                    <a href="{% url 'bien_detail' bien.pk %}" class="btn btn-sm btn-info">Voir</a>
+                    <a href="{% url 'modifier_bien' bien.pk %}" class="btn btn-sm btn-warning">Modifier</a>
+                    <a href="{% url 'supprimer_bien' bien.pk %}" class="btn btn-sm btn-danger">Supprimer</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>Aucun bien disponible pour le moment.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends 'biens/base.html' %}
+{% block title %}Supprimer le bail{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3 class="text-danger">Confirmer la suppression</h3>
+    <p>Voulez-vous supprimer le bail de <strong>{{ bail.locataire.username }}</strong> pour <strong>{{ bail.bien }}</strong> ?</p>
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Oui, supprimer</button>
+        <a href="{% url 'list_bails' %}" class="btn btn-secondary">Annuler</a>
+    </form>
+</div>
+{% endblock %}

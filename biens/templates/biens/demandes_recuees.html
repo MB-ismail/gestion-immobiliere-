@@ -1,0 +1,36 @@
+{% extends 'biens/base.html' %}
+
+{% block title %}Demandes reçues{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Demandes de bail en attente</h2>
+    {% if demandes %}
+        <table class="table mt-3">
+            <thead>
+                <tr>
+                    <th>Bien</th>
+                    <th>Locataire</th>
+                    <th>Message</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in demandes %}
+                <tr>
+                    <td>{{ d.bien.titre }}</td>
+                    <td>{{ d.locataire }}</td>
+                    <td>{{ d.message|default:"—" }}</td>
+                    <td>
+                        <a href="{% url 'accepter_demande' d.id %}" class="btn btn-success btn-sm">Accepter</a>
+                        <a href="{% url 'refuser_demande' d.id %}" class="btn btn-danger btn-sm">Refuser</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Aucune demande en attente.</p>
+    {% endif %}
+</div>
+{% endblock %}

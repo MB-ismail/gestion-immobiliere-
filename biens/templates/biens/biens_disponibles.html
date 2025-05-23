@@ -1,0 +1,33 @@
+{% extends 'biens/base.html' %}
+
+{% block title %}Biens disponibles{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Biens disponibles à la location</h2>
+
+    {% if biens %}
+        <div class="row mt-4">
+            {% for bien in biens %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        {% if bien.image %}
+                            <img src="{{ bien.image.url }}" class="card-img-top" alt="Image de {{ bien.titre }}">
+                        {% else %}
+                            <img src="https://via.placeholder.com/300x200?text=Pas+de+photo" class="card-img-top">
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ bien.titre }}</h5>
+                            <p class="card-text text-muted">{{ bien.adresse }}</p>
+                            <p class="card-text">{{ bien.surface }} m² – {{ bien.prix }} MAD/mois</p>
+                            <a href="{% url 'demander_bail' bien.id %}" class="btn btn-primary btn-sm">Faire une demande</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>Aucun bien disponible pour le moment.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends 'biens/base.html' %}
+
+{% block title %}Mes baux{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>📄 Mes contrats de bail</h2>
+
+    {% if baux %}
+        <table class="table table-bordered mt-3">
+            <thead>
+                <tr>
+                    <th>Bien</th>
+                    <th>Date début</th>
+                    <th>Date fin</th>
+                    <th>Loyer</th>
+                    <th>Contrat</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for bail in baux %}
+                <tr>
+                    <td>{{ bail.bien.titre }}</td>
+                    <td>{{ bail.date_debut|date:"d/m/Y" }}</td>
+                    <td>{{ bail.date_fin|date:"d/m/Y" }}</td>
+                    <td>{{ bail.montant_loyer }} MAD</td>
+                    <td><a href="{% url 'detail_bail' bail.id %}" class="btn btn-outline-primary btn-sm">Voir le contrat</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="text-muted">Vous n’avez encore aucun contrat de bail enregistré.</p>
+    {% endif %}
+</div>
+{% endblock %}

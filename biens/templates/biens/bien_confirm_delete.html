@@ -1,0 +1,14 @@
+{% extends 'biens/base.html' %}
+{% block title %}Supprimer le bien{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3 class="text-danger">Confirmer la suppression</h3>
+    <p>Voulez-vous vraiment supprimer <strong>{{ bien.titre }}</strong> ?</p>
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Oui, supprimer</button>
+        <a href="{% url 'list_biens' %}" class="btn btn-secondary">Annuler</a>
+    </form>
+</div>
+{% endblock %}

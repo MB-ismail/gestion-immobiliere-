@@ -1,0 +1,67 @@
+{% extends 'biens/base.html' %}
+{% load form_filters %}
+
+{% block title %}Ajouter un bail{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Ajouter un bail</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="row">
+            <div class="mb-3 col-md-6">
+                <label class="form-label">Bien</label>
+                {{ form.bien|add_class:"form-select" }}
+            </div>
+            <div class="mb-3 col-md-6">
+                <label class="form-label">Locataire</label>
+                {{ form.locataire|add_class:"form-select" }}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="mb-3 col-md-6">
+                <label class="form-label">Date de début</label>
+                {{ form.date_debut|add_class:"form-control" }}
+            </div>
+            <div class="mb-3 col-md-6">
+                <label class="form-label">Date de fin</label>
+                {{ form.date_fin|add_class:"form-control" }}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="mb-3 col-md-6">
+                <label class="form-label">Montant loyer (€)</label>
+                {{ form.montant_loyer|add_class:"form-control" }}
+            </div>
+            <div class="mb-3 col-md-6">
+                <label class="form-label">Dépôt de garantie (€)</label>
+                {{ form.garantie|add_class:"form-control" }}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="mb-3 col-md-6">
+                <label class="form-label">Adresse du locataire</label>
+                {{ form.adresse_locataire|add_class:"form-control" }}
+            </div>
+            <div class="mb-3 col-md-6">
+                <label class="form-label">Adresse du propriétaire</label>
+                {{ form.adresse_proprietaire|add_class:"form-control" }}
+            </div>
+        </div>
+
+        {% if form.fields.bien.queryset.count == 0 %}
+            <div class="alert alert-warning mt-3">
+                Aucun bien n’est disponible actuellement. Veuillez en libérer un avant d’ajouter un bail.
+            </div>
+        {% endif %}
+
+        <button type="submit" class="btn btn-success">Enregistrer</button>
+        <a href="{% url 'list_bails' %}" class="btn btn-secondary">Annuler</a>
+    </form>
+</div>
+{% endblock %}

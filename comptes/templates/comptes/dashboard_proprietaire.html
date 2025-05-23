@@ -1,0 +1,46 @@
+{% extends 'biens/base.html' %}
+
+{% block title %}Tableau de bord propriétaire{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Bienvenue {{ user.username }} (propriétaire)</h2>
+    <p class="text-muted">Que souhaitez-vous faire aujourd’hui ?</p>
+
+    <ul class="list-group mt-3 mb-5">
+        <li class="list-group-item"><a href="{% url 'list_biens' %}">📋 Gérer mes biens</a></li>
+        <li class="list-group-item"><a href="{% url 'ajouter_bien' %}">➕ Ajouter un bien</a></li>
+        <li class="list-group-item"><a href="{% url 'list_bails' %}">📄 Consulter les baux</a></li>
+    </ul>
+
+    <!-- Résumé rapide des demandes de bail en attente -->
+    <h4>📥 Demandes de bail en attente</h4>
+    {% if demandes %}
+        <table class="table table-sm table-bordered mt-3">
+            <thead class="table-light">
+                <tr>
+                    <th>Bien</th>
+                    <th>Locataire</th>
+                    <th>Message</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for demande in demandes %}
+                <tr>
+                    <td>{{ demande.bien.titre }}</td>
+                    <td>{{ demande.locataire.username }}</td>
+                    <td>{{ demande.message|default:"—" }}</td>
+                    <td>
+                        <a href="{% url 'accepter_demande' demande.id %}" class="btn btn-success btn-sm">Accepter</a>
+                        <a href="{% url 'refuser_demande' demande.id %}" class="btn btn-danger btn-sm">Refuser</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="text-muted">Aucune demande de bail en attente.</p>
+    {% endif %}
+</div>
+{% endblock %}

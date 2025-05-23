@@ -1,0 +1,67 @@
+
+{% extends 'biens/base.html' %}
+{% load form_tags %}
+{% block title %}Ajouter un bien{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white text-center">
+                    <h3>📝 Ajouter un bien immobilier</h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="id_titre" class="form-label">Titre</label>
+                            {{ form.titre|add_class:"form-control" }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_description" class="form-label">Description</label>
+                            {{ form.description|add_class:"form-control" }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_adresse" class="form-label">Adresse</label>
+                            {{ form.adresse|add_class:"form-control" }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_surface" class="form-label">Surface (m²)</label>
+                            {{ form.surface|add_class:"form-control" }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_prix" class="form-label">Prix (MAD)</label>
+                            {{ form.prix|add_class:"form-control" }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_statut" class="form-label">Statut</label>
+                            {{ form.statut|add_class:"form-select" }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_image" class="form-label">Image</label>
+                            {{ form.image|add_class:"form-control" }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_type" class="form-label">Type</label>
+                            {{ form.type|add_class:"form-select" }}
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-success me-2">✅ Enregistrer</button>
+                            <a href="{% url 'list_biens' %}" class="btn btn-secondary">❌ Annuler</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

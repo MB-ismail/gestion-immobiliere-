@@ -1,0 +1,22 @@
+{% extends 'biens/base.html' %}
+
+{% block title %}Tableau de bord locataire{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Bienvenue {{ user.username }} (locataire)</h2>
+    <p class="text-muted">Accédez à vos fonctionnalités :</p>
+
+    <ul class="list-group mt-3">
+        <li class="list-group-item">
+            <a href="{% url 'biens_disponibles' %}">🏠 Voir les biens disponibles</a>
+        </li>
+        <li class="list-group-item">
+            <a href="{% url 'mes_demandes_bail' %}">📬 Mes demandes de bail</a>
+        </li>
+        <li class="list-group-item">
+            <a href="{% url 'mes_baux' %}">📄 Mes contrats de bail</a>
+        </li>
+    </ul>
+</div>
+{% endblock %}

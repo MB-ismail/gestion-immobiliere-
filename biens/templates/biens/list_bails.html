@@ -1,0 +1,41 @@
+{% extends 'biens/base.html' %}
+{% block title %}Liste des baux{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Baux enregistrés</h2>
+    <a href="{% url 'ajouter_bail' %}" class="btn btn-primary mb-3">Ajouter un bail</a>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Bien</th>
+                <th>Locataire</th>
+                <th>Du</th>
+                <th>Au</th>
+                <th>Loyer</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for bail in baux %}
+            <tr>
+                <td>{{ bail.bien }}</td>
+                <td>{{ bail.locataire.username }}</td>
+                <td>{{ bail.date_debut }}</td>
+                <td>{{ bail.date_fin }}</td>
+                <td>{{ bail.montant_loyer }} DH</td>
+                <td>
+                    <a href="{% url 'contrat_pdf' bail.id %}" class="btn btn-outline-secondary btn-sm">
+                        📄 Voir Contrat
+                    </a>
+                    
+                    <a href="{% url 'supprimer_bail' bail.pk %}" class="btn btn-sm btn-danger">Supprimer</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6">Aucun bail enregistré.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
