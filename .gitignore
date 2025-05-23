@@ -1,0 +1,12 @@
+# Cache Python
+__pycache__/
+*.pyc
+
+# Environnement virtuel
+venv/
+
+# Fichiers de config sensibles
+.env
+
+# Autres
+*.log
