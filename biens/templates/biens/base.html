@@ -58,6 +58,29 @@
                         <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Connexion</a></li>
                         <li class="nav-item"><a class="nav-link" href="{% url 'signup' %}">Inscription</a></li>
                     {% endif %}
+
+                    {% if user.is_authenticated and user.role == 'locataire' %}
+                        <li><a class="nav-link" href="{% url 'mes_paiements' %}">Mes paiements</a></li>
+                    {% endif %}
+
+                {% if user.role == "proprietaire" %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'paiements_recus' %}">Paiements reçus</a>
+                    </li>
+                {% endif %}
+
+                {% if user.role == "gestionnaire" %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'list_biens' %}">Biens</a>
+                    </li>
+                {% endif %}
+
+                {% if user.is_authenticated and user.role == 'agent' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'dashboard_agent' %}">Dashboard Agent</a>
+                    </li>
+                {% endif %}
+
                 </ul>
             </div>
         </div>

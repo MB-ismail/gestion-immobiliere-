@@ -34,3 +34,23 @@ class BailForm(forms.ModelForm):
         # Afficher uniquement les biens libres
         self.fields['bien'].queryset = Bien.objects.filter(statut='libre')
 
+from .models import Paiement
+
+class PaiementForm(forms.ModelForm):
+    class Meta:
+        model = Paiement
+        fields = ['montant', 'mois_paye']
+
+from .models import Intervention
+
+class InterventionForm(forms.ModelForm):
+    class Meta:
+        model = Intervention
+        fields = ['bail', 'description']
+    
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if user:
+            self.fields['bail'].queryset = Bail.objects.filter(locataire=user)
+

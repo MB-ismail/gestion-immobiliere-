@@ -1,0 +1,42 @@
+{% extends 'biens/base.html' %}
+{% block title %}Paiements reçus{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Paiements reçus</h2>
+    {% if paiements %}
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Locataire</th>
+                    <th>Bien</th>
+                    <th>Mois payé</th>
+                    <th>Montant</th>
+                    <th>Date</th>
+                    <th>Validation</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for paiement in paiements %}
+                    <tr>
+                        <td>{{ paiement.locataire.get_full_name }}</td>
+                        <td>{{ paiement.bail.bien.titre }}</td>
+                        <td>{{ paiement.mois_paye }}</td>
+                        <td>{{ paiement.montant }} MAD</td>
+                        <td>{{ paiement.date_paiement|date:"d/m/Y" }}</td>
+                        <td>
+                            {% if paiement.valide %}
+                                ✅
+                            {% else %}
+                                <a href="{% url 'valider_paiement' paiement.id %}" class="btn btn-success btn-sm">Valider</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Aucun paiement reçu pour l’instant.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -8,6 +8,7 @@ urlpatterns = [
     path('bien/<int:pk>/modifier/', views.modifier_bien, name='modifier_bien'),
     path('bien/<int:pk>/supprimer/', views.supprimer_bien, name='supprimer_bien'),
     path('bien/<int:bien_id>/demander-bail/', views.demander_bail, name='demander_bail'),
+    
 
 
     path('bails/', views.list_bails, name='list_bails'),
@@ -31,6 +32,16 @@ urlpatterns = [
     path('bails/ajouter/<int:bien_id>/<int:locataire_id>/', views.ajouter_bail, name='ajouter_bail'),
     path('bails/<int:pk>/valider_proprio/', views.valider_bail_proprio, name='valider_bail_proprio'),
 
+    path('bail/<int:bail_id>/payer/', views.payer_loyer, name='payer_loyer'),
+    path('paiements/recus/', views.paiements_recus, name='paiements_recus'),
+    path('paiement/<int:paiement_id>/valider/', views.valider_paiement, name='valider_paiement'),
+    path('mes_paiements/', views.list_paiements, name='mes_paiements'),
 
-
+    path('intervention/signalement/', views.signaler_intervention, name='signaler_intervention'),
+    path('agent/dashboard/', views.dashboard_agent, name='dashboard_agent'),
+    path('interventions/traiter/<int:intervention_id>/', views.traiter_intervention, name='traiter_intervention'),
+    path('interventions-a-traiter/', views.interventions_a_traiter, name='interventions_a_traiter'),
+    path('intervention/<int:pk>/valider/', views.valider_intervention, name='valider_intervention'),
+    path('agent/intervention/<int:intervention_id>/refuser/', views.refuser_intervention, name='refuser_intervention'),
+    path('interventions/mes/', views.mes_interventions, name='mes_interventions'),
 ]

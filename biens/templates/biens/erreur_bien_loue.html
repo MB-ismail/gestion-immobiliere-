@@ -1,0 +1,8 @@
+{% extends 'biens/base.html' %}
+{% block content %}
+<div class="alert alert-danger mt-5 text-center">
+    <h4>Ce bien est déjà loué.</h4>
+    <p>Vous ne pouvez pas envoyer de demande pour un bien occupé.</p>
+    <a href="{% url 'biens_disponibles' %}" class="btn btn-primary">Retour aux biens disponibles</a>
+</div>
+{% endblock %}

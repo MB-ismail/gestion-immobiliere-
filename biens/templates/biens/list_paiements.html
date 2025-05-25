@@ -1,0 +1,43 @@
+{% extends 'biens/base.html' %}
+{% block title %}Mes Paiements{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Historique des paiements</h2>
+
+    {% if paiements %}
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark text-center">
+                <tr>
+                    <th>Bien</th>
+                    <th>Mois payé</th>
+                    <th>Montant</th>
+                    <th>Date de paiement</th>
+                    <th>Validation</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for paiement in paiements %}
+                <tr>
+                    <td>{{ paiement.bail.bien.titre }}</td>
+                    <td>{{ paiement.mois_paye }}</td>
+                    <td>{{ paiement.montant }} MAD</td>
+                    <td>{{ paiement.date_paiement|date:"d/m/Y " }}</td>
+                    <td>
+                        {% if paiement.valide %}
+                            ✅
+                        {% else %}
+                            ❌
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="alert alert-info text-center">
+            Aucun paiement enregistré pour le moment.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

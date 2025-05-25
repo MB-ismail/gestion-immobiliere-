@@ -12,23 +12,39 @@
                 <label for="id_username" class="form-label">Nom d'utilisateur</label>
                 {{ form.username|add_class:"form-control" }}
             </div>
+
+            <div class="mb-3">
+                <label for="id_first_name" class="form-label">Prénom</label>
+                {{ form.first_name|add_class:"form-control" }}
+            </div>
+
+            <div class="mb-3">
+                <label for="id_last_name" class="form-label">Nom</label>
+                {{ form.last_name|add_class:"form-control" }}
+            </div>
+
             <div class="mb-3">
                 <label for="id_email" class="form-label">Adresse Email</label>
                 {{ form.email|add_class:"form-control" }}
             </div>
+
             <div class="mb-3">
                 <label for="id_password1" class="form-label">Mot de passe</label>
                 {{ form.password1|add_class:"form-control" }}
             </div>
+
             <div class="mb-3">
                 <label for="id_password2" class="form-label">Confirmation du mot de passe</label>
                 {{ form.password2|add_class:"form-control" }}
             </div>
+
             <div class="mb-3">
                 <label for="id_role" class="form-label">Rôle</label>
                 {{ form.role|add_class:"form-select" }}
             </div>
+
             <button type="submit" class="btn btn-success w-100">S'inscrire</button>
+            
         </form>
         <p class="mt-3 text-center">
             Déjà inscrit ? <a href="{% url 'login' %}">Connectez-vous</a>

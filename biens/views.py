@@ -8,12 +8,12 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 #  Lister les biens
 @login_required
 def list_biens(request):
-    biens = Bien.objects.all()
+    biens = Bien.objects.filter(proprietaire=request.user)
     return render(request, 'biens/list_biens.html', {'biens': biens})
 
 #  Voir le détail d’un bien
 def bien_detail(request, pk):
-    bien = get_object_or_404(Bien, pk=pk)
+    bien = get_object_or_404(Bien, pk=pk, proprietaire=request.user)
     return render(request, 'biens/bien_detail.html', {'bien': bien})
 
 #  Ajouter un bien
@@ -29,7 +29,7 @@ def ajouter_bien(request):
         form = BienForm(request.POST, request.FILES)
         if form.is_valid():
             bien = form.save(commit=False)
-            bien.proprietaire = request.user
+            bien.proprietaire = request.user  # Associe le proprio connecté
             bien.save()
             return redirect('list_biens')
     else:
@@ -39,7 +39,7 @@ def ajouter_bien(request):
 #  Modifier un bien
 @login_required
 def modifier_bien(request, pk):
-    bien = get_object_or_404(Bien, pk=pk)
+    bien = get_object_or_404(Bien, pk=pk, proprietaire=request.user)
     if request.method == 'POST':
         form = BienForm(request.POST, request.FILES, instance=bien)
         if form.is_valid():
@@ -52,7 +52,7 @@ def modifier_bien(request, pk):
 #  Supprimer un bien
 @login_required
 def supprimer_bien(request, pk):
-    bien = get_object_or_404(Bien, pk=pk)
+    bien = get_object_or_404(Bien, pk=pk, proprietaire=request.user)
     if request.method == 'POST':
         bien.delete()
         return redirect('list_biens')
@@ -63,11 +63,12 @@ from .forms import BailForm
 
 @login_required
 def list_bails(request):
-    baux = Bail.objects.all()
+    baux = Bail.objects.filter(bien__proprietaire=request.user)
     return render(request, 'biens/list_bails.html', {'baux': baux})
 
 from .models import Bien, Bail, CustomUser
 from .forms import BailForm
+from datetime import datetime
 
 @login_required
 @user_passes_test(est_proprietaire)
@@ -87,6 +88,22 @@ def ajouter_bail(request, bien_id=None, locataire_id=None):
             return redirect('list_bails')
     else:
         form = BailForm(initial=initial_data)
+        if form.is_valid():
+            bail = form.save(commit=False)
+            bail.est_valide_proprio = True
+            bail.save()
+
+            # 🟩 Création automatique du paiement du 1er mois
+            Paiement.objects.create(
+                bail=bail,
+                locataire=bail.locataire,
+                montant=bail.montant_loyer,
+                mois_paye=timezone.now().strftime('%B %Y')  # Exemple : "Mai 2025"
+            )
+
+            return redirect('list_bails')
+        else:
+            form = BailForm(initial=initial_data)
 
     return render(request, 'biens/bail_form.html', {'form': form})
 
@@ -110,6 +127,8 @@ def est_locataire(user):
 def demander_bail(request, bien_id):
     bien = get_object_or_404(Bien, id=bien_id)
 
+    if bien.statut == 'loue':
+        return render(request, 'biens/erreur_bien_loue.html', {'bien': bien})
     if request.method == 'POST':
         message = request.POST.get('message', '')
         DemandeBail.objects.create(
@@ -139,20 +158,7 @@ def accepter_demande(request, demande_id):
     demande.statut = 'accepte'
     demande.save()
 
-    # Création du bail
-    Bail.objects.create(
-        bien=demande.bien,
-        locataire=demande.locataire,
-        date_debut=timezone.now(),
-        date_fin=timezone.now() + timedelta(days=365),
-        montant_loyer=demande.bien.prix
-    )
-
-    # Mise à jour du bien comme loué
-    demande.bien.statut = 'loue'
-    demande.bien.save()
-
-    return redirect('demandes_recuees')
+    return redirect('ajouter_bail', bien_id=demande.bien.id, locataire_id=demande.locataire.id)
 
 @login_required
 @user_passes_test(est_proprietaire)
@@ -196,16 +202,34 @@ def detail_bail(request, bail_id):
             bail.est_valide_locataire = True
             bail.save()
 
+        # ✅ Si les deux ont signé, statut loué + création 1er paiement
+        if bail.est_valide_proprio and bail.est_valide_locataire:
+            bail.bien.statut = 'loue'
+            bail.bien.save()
+
+            # Vérifie qu'aucun paiement n'existe déjà
+            if not Paiement.objects.filter(bail=bail).exists():
+                Paiement.objects.create(
+                    bail=bail,
+                    locataire=bail.locataire,
+                    montant=bail.montant_loyer,
+                    mois_paye=timezone.now().strftime('%B %Y')
+                )
+
     return render(request, 'biens/detail_bail.html', {'bail': bail})
 
 def est_locataire(user):
     return user.is_authenticated and user.role == 'locataire'
 
+from .utils import generer_paiements_mensuels
+
 @login_required
 @user_passes_test(est_locataire)
 def mes_baux(request):
+    generer_paiements_mensuels()  #  Exécute la génération automatique
     baux = Bail.objects.filter(locataire=request.user).select_related('bien')
-    return render(request, 'biens/mes_baux.html', {'baux': baux}) 
+    return render(request, 'biens/mes_baux.html', {'baux': baux})
+
 
 from django.template.loader import get_template
 from xhtml2pdf import pisa
@@ -247,7 +271,175 @@ def valider_bail_proprio(request, pk):
     return redirect('detail_bail', bail_id=pk)
 
     response = HttpResponse(content_type='application/pdf')
+
+from .models import Paiement
+from .forms import PaiementForm
+from django.contrib import messages
+@login_required
+@user_passes_test(est_locataire)
+def payer_loyer(request, bail_id):
+    bail = get_object_or_404(Bail, id=bail_id, locataire=request.user)
+
+    if request.method == 'POST':
+        form = PaiementForm(request.POST)
+        if form.is_valid():
+            paiement = form.save(commit=False)
+            paiement.bail = bail
+            paiement.save()
+            messages.success(request, "Paiement enregistré. En attente de validation.")
+            return redirect('mes_baux')
+    else:
+        form = PaiementForm()
+
+    return render(request, 'biens/payer_loyer.html', {'form': form, 'bail': bail})
     response['Content-Disposition'] = f'inline; filename="contrat_bail_{bail.id}.pdf"'
 
     HTML(string=html_string).write_pdf(response)
     return response
+
+@login_required
+@user_passes_test(est_proprietaire)
+def valider_paiement(request, paiement_id):
+    paiement = get_object_or_404(Paiement, id=paiement_id)
+
+    # Vérifie que le propriétaire est bien celui du bien
+    if paiement.bail.bien.proprietaire == request.user:
+        paiement.valide = True
+        paiement.save()
+
+    return redirect('paiements_recus')
+
+
+def est_locataire(user):
+    return user.is_authenticated and user.role == 'locataire'
+
+@login_required
+@user_passes_test(est_locataire)
+def list_paiements(request):
+    paiements = Paiement.objects.filter(locataire=request.user).select_related('bail').order_by('-date_paiement')
+    return render(request, 'biens/list_paiements.html', {'paiements': paiements})
+
+
+@login_required
+@user_passes_test(est_locataire)
+def enregistrer_paiement(request):
+    bail = Bail.objects.filter(locataire=request.user).first()
+    if not bail:
+        return render(request, 'biens/erreur.html', {"message": "Aucun bail actif trouvé."})
+
+    if request.method == 'POST':
+        form = PaiementForm(request.POST)
+        if form.is_valid():
+            paiement = form.save(commit=False)
+            paiement.bail = bail
+            paiement.locataire = request.user
+            paiement.save()
+            return redirect('list_paiements')
+    else:
+        form = PaiementForm()
+
+    return render(request, 'biens/paiement_form.html', {'form': form})
+
+@login_required
+@user_passes_test(est_proprietaire)
+def paiements_recus(request):
+    paiements = Paiement.objects.filter(
+        bail__bien__proprietaire=request.user
+    ).select_related('bail', 'bail__locataire')
+
+    return render(request, 'biens/paiements_recus.html', {
+        'paiements': paiements
+    })
+
+from django.utils import timezone
+from .models import Intervention
+from .forms import InterventionForm
+def est_agent(user):
+    return user.is_authenticated and user.role == 'agent'
+
+
+@login_required
+@user_passes_test(est_locataire)
+def signaler_probleme(request):
+    if request.method == 'POST':
+        form = InterventionForm(request.POST, user=request.user)
+        if form.is_valid():
+            intervention = form.save(commit=False)
+            intervention.locataire = request.user
+            intervention.save()
+            return redirect('mes_interventions')
+    else:
+        form = InterventionForm(user=request.user)
+    return render(request, 'biens/signaler_probleme.html', {'form': form})
+
+
+@login_required
+@user_passes_test(est_locataire)
+def mes_interventions(request):
+    interventions = Intervention.objects.filter(bail__locataire=request.user)
+    return render(request, 'biens/mes_interventions.html', {'interventions': interventions})
+
+
+@login_required
+@user_passes_test(est_agent)
+def interventions_a_traiter(request):
+    interventions = Intervention.objects.filter(agent=None, statut='en attente')
+    return render(request, 'biens/interventions_a_traiter.html', {'interventions': interventions})
+
+@login_required
+@user_passes_test(lambda u: u.is_authenticated and u.role == 'agent')
+def traiter_intervention(request, intervention_id):
+    intervention = get_object_or_404(Intervention, pk=intervention_id)
+    if request.method == 'POST':
+        intervention.statut = 'acceptee'
+        intervention.save()
+    return redirect('interventions_a_traiter')
+
+
+@login_required
+@user_passes_test(est_agent)
+def valider_intervention(request, pk):
+    intervention = get_object_or_404(Intervention, pk=pk)
+    if request.method == 'POST':
+        intervention.statut = 'validee'
+        intervention.save()
+        messages.success(request, "Intervention validée avec succès.")
+
+    return redirect('dashboard_agent')
+
+
+@login_required
+@user_passes_test(est_agent)
+def refuser_intervention(request, intervention_id):
+    intervention = Intervention.objects.get(id=intervention_id)
+    intervention.statut = 'refusee'
+    intervention.agent = request.user
+    intervention.save()
+    return redirect('dashboard_agent')
+
+
+
+def est_locataire(user):
+    return user.is_authenticated and user.role == 'locataire'
+
+@login_required
+@user_passes_test(est_locataire)
+def signaler_intervention(request):
+    if request.method == 'POST':
+        form = InterventionForm(request.POST, user=request.user)
+        if form.is_valid():
+            intervention = form.save(commit=False)
+            intervention.save()
+            return redirect('mes_interventions')
+    else:
+        form = InterventionForm(user=request.user)
+    return render(request, 'biens/signaler.html', {'form': form})
+
+def est_agent(user):
+    return user.is_authenticated and user.role == 'agent'
+
+@login_required
+@user_passes_test(est_agent)
+def dashboard_agent(request):
+    interventions = Intervention.objects.all().select_related('bail__bien', 'bail__locataire')
+    return render(request, 'comptes/dashboard_agent.html', {'interventions': interventions})

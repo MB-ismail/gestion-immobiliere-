@@ -59,5 +59,5 @@ def dashboard_view(request):
     elif user.role == 'locataire':
         return render(request, 'comptes/dashboard_locataire.html')
     else:
-        return render(request, 'comptes/dashboard_autre.html')
+        return render(request, 'comptes/dashboard_agent.html')
 

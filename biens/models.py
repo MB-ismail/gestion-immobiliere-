@@ -53,8 +53,11 @@ class Bail(models.Model):
 
     def est_legalise(self):
         return self.est_valide_proprio and self.est_valide_locataire
-
-
+    
+    def save(self, *args, **kwargs):
+        self.bien.statut = 'loue' 
+        self.bien.save()
+        super().save(*args, **kwargs)
 
 
 
@@ -73,4 +76,34 @@ class DemandeBail(models.Model):
 
     def __str__(self):
         return f"{self.locataire} → {self.bien} [{self.statut}]"
+
+import django.utils.timezone as timezone
+class Paiement(models.Model):
+    bail = models.ForeignKey(Bail, on_delete=models.CASCADE)
+    locataire = models.ForeignKey(CustomUser, on_delete=models.CASCADE, limit_choices_to={'role': 'locataire'})
+    montant = models.DecimalField(max_digits=10, decimal_places=2)
+    mois_paye = models.CharField(max_length=20)  # ✅ ajoute ce champ
+    date_paiement = models.DateTimeField(auto_now_add=True)
+    valide = models.BooleanField(default=False)
+
+    def _str_(self):
+        return f"{self.locataire.get_full_name()} - {self.mois_paye} - {self.montant} DH"
+    
+class Intervention(models.Model):
+    bail = models.ForeignKey(Bail, on_delete=models.CASCADE, related_name="interventions")
+    description = models.TextField()
+    date_signalement = models.DateTimeField(default=timezone.now)
+    
+    STATUT_CHOICES = [
+        ('en attente', 'En attente'),
+        ('en cours', 'En cours'),
+        ('terminee', 'Terminée'),
+        ('refusee', 'Refusée'),
+    ]
+    statut = models.CharField(max_length=20, choices=STATUT_CHOICES, default='en attente')
+    
+    agent = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, limit_choices_to={'role': 'agent'})
+    
+    def __str__(self):
+        return f"{self.bail} - {self.statut}"
 

@@ -5,7 +5,7 @@
 <div class="container mt-4">
     <h2>Contrat de bail</h2>
     <p><strong>Bien :</strong> {{ bail.bien.titre }}</p>
-    <p><strong>Locataire :</strong> {{ bail.locataire.username }}</p>
+    <p><strong>Locataire :</strong> {{ bail.locataire.first_name }} {{ bail.locataire.last_name }}</p>
     <p><strong>Adresse locataire :</strong> {{ bail.adresse_locataire }}</p>
     <p><strong>Adresse propriétaire :</strong> {{ bail.adresse_proprietaire }}</p>
     <p><strong>Montant du loyer :</strong> {{ bail.montant_loyer }} MAD</p>

@@ -1,0 +1,44 @@
+{% extends 'biens/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Tableau de bord de l'agent</h2>
+
+    {% if interventions %}
+    <table class="table table-bordered table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th>Bien</th>
+                <th>Locataire</th>
+                <th>Description</th>
+                <th>Date</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for intervention in interventions %}
+                <tr>
+                    <td>{{ intervention.bail.bien.titre }}</td>
+                    <td>{{ intervention.bail.locataire.get_full_name }}</td>
+                    <td>{{ intervention.description }}</td>
+                    <td>{{ intervention.date_signalement|date:"d/m/Y H:i" }}</td>
+                    
+                    <td>
+                        {% if intervention.get_statut_display == "validee" %}
+                            <span class="badge badge-success">Validée</span>
+                        {% else %}
+                            <form method="post" action="{% url 'valider_intervention' intervention.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-success btn-sm">Valider</button>
+                            </form>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>Aucune intervention à afficher.</p>
+    {% endif %}
+</div>
+{% endblock %}
