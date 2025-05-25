@@ -5,12 +5,15 @@ Il permet aux propriétaires de publier leurs biens, aux locataires de faire des
 
 ## 👨‍💻 Fonctions principales
 
-- Authentification par rôle (propriétaire, locataire)
+- Authentification par rôle (propriétaire, locataire, agent)
 - Ajout, modification et suppression de biens
 - Gestion des demandes de location
 - Signature numérique du contrat de bail
 - Génération PDF du contrat
 - Tableau de bord personnalisé
+- Paiement du loyer 
+- Signalement d'interventions
+
 
 ## ⚙️ Technologies
 
